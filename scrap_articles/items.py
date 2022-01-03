@@ -6,9 +6,18 @@ class ArticleItem(Item):
     title = Field()
     abstract = Field()
     authors = Field()
-    nbrCitations = Field()
     keywords = Field()
     date = Field()
-    confLocation = Field()
     source = Field()
-    pass
+    universities = Field()
+    countries = Field()
+    type = Field()
+
+
+class TopicItem(Item):
+    id = Field()
+    name = Field()
+    usage_by_year = Field()
+    total = Field()
+    source = Field()
+    type = Field()
