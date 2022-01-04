@@ -1,5 +1,6 @@
 import pymongo
 from itemadapter import ItemAdapter
+from scrapy.exceptions import DropItem
 
 
 class ScrapArticlesPipeline:
@@ -15,6 +16,8 @@ class ScrapArticlesPipeline:
         if "abstract" not in adapter.field_names():
             self.db.get_collection('topics').insert_one(adapter.asdict())
         else:
+            if not adapter['title']:
+                raise DropItem(f"No title given for {adapter['id']}")
             adapter['countries'] = list(dict.fromkeys((adapter['countries'])))
-            self.db.get_collection('articles').insert_one(adapter.asdict())
+            self.db.get_collection(f"articles_{adapter['source']}").insert_one(adapter.asdict())
         return item

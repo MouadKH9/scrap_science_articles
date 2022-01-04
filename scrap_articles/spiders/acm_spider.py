@@ -28,7 +28,7 @@ class ACMSpider(scrapy.Spider):
         for item in response.css(".issue-item__title a::attr(href)").getall():
             yield SplashRequest(response.urljoin(item), self.parse_article, args={'wait': 3})
 
-        if self.current_page < 3:
+        if self.current_page < 10:
             self.current_page += 1
             yield SplashRequest(get_page(self.keyword, self.current_page), self.parse, args={'wait': 3})
 
@@ -42,9 +42,9 @@ class ACMSpider(scrapy.Spider):
         item['id'] = response.url.split("/")[-1]
         item['title'] = response.css('.citation__title::text').get()
         item['abstract'] = response.css('.abstractSection p::text').get()
-        item['authors'] = ';'.join(response.css(".loa__author-name span::text").getall())
-        item['countries'] = ';'.join(countries)
-        item['universities'] = ';'.join(unis)
+        item['authors'] = response.css(".loa__author-name span::text").getall()
+        item['countries'] = countries
+        item['universities'] = unis
         item['keywords'] = [self.keyword]
         item['date'] = datetime.strptime(date, '%d %B %Y') if date else None
         item['source'] = "acm"

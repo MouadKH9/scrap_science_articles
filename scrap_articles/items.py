@@ -11,7 +11,6 @@ class ArticleItem(Item):
     source = Field()
     universities = Field()
     countries = Field()
-    type = Field()
 
 
 class TopicItem(Item):
