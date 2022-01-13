@@ -11,6 +11,7 @@ class ArticleItem(Item):
     source = Field()
     universities = Field()
     countries = Field()
+    citations = Field()
 
 
 class TopicItem(Item):
@@ -19,4 +20,3 @@ class TopicItem(Item):
     usage_by_year = Field()
     total = Field()
     source = Field()
-    type = Field()

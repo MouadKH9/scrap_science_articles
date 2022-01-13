@@ -64,7 +64,7 @@ class ScienceDirectSpider(scrapy.Spider):
         for item in response.css(".result-item-content h2 a::attr(href)").getall():
             yield SplashRequest(response.urljoin(item), self.parse_article, args={'wait': 3})
 
-        if self.current_page < 5:
+        if self.current_page < 20:
             self.current_page += 1
             yield SplashRequest(get_page(self.keyword, self.current_page), self.parse, args={'wait': 3})
 
@@ -80,6 +80,8 @@ class ScienceDirectSpider(scrapy.Spider):
             keywords.append(self.keyword)
 
         year = response.css(".copyright-line::text").get().split(" ")[1]
+        if year == "©":
+            year = response.css(".copyright-line::text").get().split(" ")[2]
         item = ArticleItem()
 
         item['id'] = response.url.split("/")[-1]
@@ -87,16 +89,24 @@ class ScienceDirectSpider(scrapy.Spider):
         item['abstract'] = response.css('.abstract.author p::text').get()
         item['authors'] = authors
         item['keywords'] = keywords
-        item['date'] = datetime.datetime(int(year), 1, 1)
+        try:
+            item['date'] = datetime.datetime(int(year), 1, 1)
+        except:
+            item['date'] = None
         item['source'] = "science_direct"
 
         self.driver.get(response.url)
         self.driver.implicitly_wait(2)
+        citings_elems = WebDriverWait(self.driver, 10).until(
+            EC.text_to_be_present_in_element((By.CSS_SELECTOR, "#citing-articles-header h2"), "(")
+        )
         self.driver.find_element(By.ID, 'show-more-btn').click()
         self.driver.implicitly_wait(1)
 
         affiliations = self.driver.find_elements(By.CSS_SELECTOR, ".affiliation dd")
         unis = [aff.text for aff in affiliations]
+        item['citations'] = int(
+            self.driver.find_element(By.CSS_SELECTOR, "#citing-articles-header h2").text.split("(")[-1].split(")")[0])
         item['universities'] = unis
         item['countries'] = [uni.split(",")[-1].strip() for uni in unis]
 

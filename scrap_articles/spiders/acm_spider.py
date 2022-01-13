@@ -43,6 +43,10 @@ class ACMSpider(scrapy.Spider):
         item['title'] = response.css('.citation__title::text').get()
         item['abstract'] = response.css('.abstractSection p::text').get()
         item['authors'] = response.css(".loa__author-name span::text").getall()
+        try:
+            item['citations'] = int(response.css(".tooltip__body .citation span::text").get())
+        except:
+            pass
         item['countries'] = countries
         item['universities'] = unis
         item['keywords'] = [self.keyword]
